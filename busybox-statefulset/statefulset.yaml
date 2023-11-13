@@ -4,6 +4,12 @@ kind: StatefulSet
 metadata:
   name: busybox
 spec:
+  # Required for proper clean up on failover and successful relocate. You
+  # must enable the StatefulSetAutoDeletePVC feature gate for this.
+  # https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Delete
+    whenScaled: Retain
   selector:
     matchLabels:
       appname: busybox
