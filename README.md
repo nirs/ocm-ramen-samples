@@ -51,7 +51,77 @@ OCM Stateful application samples, including Ramen resources.
    kubectl get channel ramen-gitops -n ramen-samples
    ```
 
-## Sample application deployment
+## The sample applications
+
+This repository provides sample applications that can be deployed on
+OpenShift and Kubernetes clusters.
+
+### Samples for OpenShift
+
+Applications:
+
+- **busybox-odr** - Regional DR using RBD storage
+  - path: `busybox-odr`
+
+- **busybox-odr-metro** - Metro DR using RBD storage
+  - path: `busybox-odr-metro`
+
+- **busybox-odr-cephfs** - Regional DR using CephFS storage
+  - path: `busybox-odr-cephfs`
+
+On OpenShift the applications can be deployed using the OpenShift
+Console. When creating the application, specify:
+
+- `repo`: The URL of this github repo, or if you forked the repo on
+  github, the URL of your fork.
+- `branch`: The git branch for testing (typically "main")
+- `path`: The path to the application directory
+- `name`: application name
+- `application namespace`: typically same as application name
+- PVC Selector: `appname=busybox`
+
+To enable DR for the application, assign a DRPolicy using the Console.
+
+To disable DR for the application you need to update the application
+Placement delete the DRPlacementControl resource manually. See
+[Disable DR for the OCM application](#disable-dr-for-the-ocm-application)
+for more info.
+
+### Samples for Kubernetes
+
+On Kubernetes you deploy the application using the provided
+`subscription*` kustomization, and you enable or disable DR using the
+provided `dr*` kustomization.
+
+The samples are configured to run on *Ramen* test environment. You may
+need to change the storage class name to run on your environment.
+
+Applications:
+
+- **busybox** - deployment using RBD storage
+  - application: `busybox`
+  - subscription: `subscription`
+  - dr: `dr`
+  - namespace: `busybox-sample`
+
+- **busybox-statefulset** - statefulset using RBD storage
+  - application: `busybox-statefulset`
+  - subscription: `subscription-statefulset`
+  - dr: `dr-statefulset`
+  - namespace: `busybox-sample-statefulset`
+
+- **busybox-daemonset** - daemonset using RBD storage
+  - application: `busybox-daemonset`
+  - subscription: `subscription-daemeonset`
+  - dr: `dr-dameonset`
+  - namespace: `busybox-sample-daemonset`
+
+## Deploying sample applications
+
+> [!IMPORTANT]
+> The example shows how to deploy the `busybox` application in the
+> `busybox-sample` namespace. Use the relevant `subscription*` directory
+> and namespace to deploy the other applications.
 
 1. Deploy an OCM application subscription on hub:
 
@@ -85,6 +155,11 @@ OCM Stateful application samples, including Ramen resources.
 
 ## Undeploying the sample application
 
+> [!IMPORTANT]
+> The example shows how to undeploy the `busybox` application in the
+> `busybox-sample` namespace. Use the relevant `subscription*` directory
+> and namespace to undeploy the other applications.
+
 To undeploy the application delete the subscription kustomization:
 
 ```
@@ -92,6 +167,11 @@ kubectl delete -k subscription
 ```
 
 ## Enable DR for the OCM application
+
+> [!IMPORTANT]
+> The example shows how to enable DR for the `busybox` application in
+> the `busybox-sample` namespace. Use the relevant `dr*` directory and
+> namespace to enable DR for the other applications.
 
 1. Change the Placement to be reconciled by Ramen
 
@@ -118,6 +198,11 @@ kubectl delete -k subscription
    At this point the application is managed by *Ramen*.
 
 ## Disable DR for the OCM application
+
+> [!IMPORTANT]
+> The example shows how to disable DR for the `busybox` application in
+> the `busybox-sample` namespace. Use the relevant `dr*` directory and
+> namespace to enable DR for the other applications.
 
 1. Ensure Placement is pointing to the cluster where the workload is
    currently placed to avoid data loss if OCM moves the application to
