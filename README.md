@@ -117,43 +117,45 @@ need to change the storage class name to run on your environment.
 
 Applications:
 
-- **busybox/deployment** - deployment using RBD storage
-  - application: `busybox/deployment`
-  - subscription: `subscription`
-  - dr: `dr`
-  - namespace: `busybox-sample-deployment`
+- **k8s/busybox-regional-rbd-deploy**
+  - application: `k8s/busybox-regional-rbd-deploy/app`
+  - subscription: `k8s/busybox-regional-rbd-deploy/sub`
+  - dr: `k8s/busybox-regional-rbd-deploy/dr`
+  - name: `busybox-regional-rbd-deploy`
+  - namespace: `busybox-regional-rbd-deploy`
 
-- **busybox/statefulset** - statefulset using RBD storage
-  - application: `busybox/statefulset`
-  - subscription: `subscription-statefulset`
-  - dr: `dr-statefulset`
-  - namespace: `busybox-sample-statefulset`
+- **k8s/busybox-regional-rbd-sts**
+  - application: `k8s/busybox-regional-rbd-sts/app`
+  - subscription: `k8s/busybox-regional-rbd-sts/sub`
+  - dr: `k8s/busybox-regional-rbd-sts/dr`
+  - name: `busybox-regional-rbd-sts`
+  - namespace: `busybox-regional-rbd-sts`
 
-- **busybox/daemonset** - daemonset using RBD storage
-  - application: `busybox/daemonset`
-  - subscription: `subscription-daemeonset`
-  - dr: `dr-dameonset`
-  - namespace: `busybox-sample-daemonset`
+- **k8s/busybox-regional-rbd-ds**
+  - application: `k8s/busybox-regional-rbd-ds/app`
+  - subscription: `k8s/busybox-regional-rbd-ds/sub`
+  - dr: `k8s/busybox-regional-rbd-ds/dr`
+  - name: `busybox-regional-rbd-ds`
+  - namespace: `busybox-regional-rbd-ds`
 
 ## Deploying sample applications
 
 > [!IMPORTANT]
-> The example shows how to deploy the `busybox` application in the
-> `busybox-sample` namespace. Use the relevant `subscription*` directory
-> and namespace to deploy the other applications.
+> The example uses the `k8s/busybox-regional-rbd-deploy` variant.
+> To use other applications replace the path and namespace.
 
 1. Deploy an OCM application subscription on hub:
 
    ```
-   kubectl apply -k subscription
+   kubectl apply -k k8s/busybox-regional-rbd-deploy/sub
    ```
 
    This creates the required Subscription, Placement, and
    ManagedClusterSetBinding resources for the busybox application in the
-   `busybox-sample` namespace and can be viewed using:
+   `busybox-regional-rbd-deploy` namespace and can be viewed using:
 
    ```
-   kubectl get subscription,placement -n busybox-sample
+   kubectl get subscription,placement -n busybox-regional-rbd-deploy
    ```
 
 1. Inspect subscribed resources from the channel created in the same
@@ -162,40 +164,38 @@ Applications:
    The busybox sample Placement `status` can be viewed on the hub using:
 
    ```
-   kubectl get placement busybox-placement -n busybox-sample
+   kubectl get placement busybox-placement -n busybox-regional-rbd-deploy
    ```
 
    Busybox subscribed resources, like the pod and the PVC can be viewed
    on the ManagedCluster using (example ManagedCluster `cluster1`):
 
    ```
-   kubectl get pod,pvc -n busybox-sample --context cluster1
+   kubectl get pod,pvc -n busybox-regional-rbd-deploy --context cluster1
    ```
 
 ## Undeploying the sample application
 
 > [!IMPORTANT]
-> The example shows how to undeploy the `busybox` application in the
-> `busybox-sample` namespace. Use the relevant `subscription*` directory
-> and namespace to undeploy the other applications.
+> The example uses the `k8s/busybox-regional-rbd-deploy` variant.
+> To use other applications replace the path and namespace.
 
 To undeploy the application delete the subscription kustomization:
 
 ```
-kubectl delete -k subscription
+kubectl delete -k k8s/busybox-regional-rbd-deploy/sub
 ```
 
 ## Enable DR for the OCM application
 
 > [!IMPORTANT]
-> The example shows how to enable DR for the `busybox` application in
-> the `busybox-sample` namespace. Use the relevant `dr*` directory and
-> namespace to enable DR for the other applications.
+> The example uses the `k8s/busybox-regional-rbd-deploy` variant.
+> To use other applications replace the path and namespace.
 
 1. Change the Placement to be reconciled by Ramen
 
    ```
-   kubectl annotate placement busybox-placement -n busybox-sample \
+   kubectl annotate placement busybox-placement -n busybox-regional-rbd-deploy \
       cluster.open-cluster-management.io/experimental-scheduling-disable=true
    ```
 
@@ -203,15 +203,15 @@ kubectl delete -k subscription
    hub, for example:
 
    ```
-   kubectl apply -k dr
+   kubectl apply -k k8s/busybox-regional-rbd-deploy/dr
    ```
 
    This creates a DRPlacementControl resource for the busybox
-   application in the `busybox-sample` namespace and can be viewed
+   application in the `busybox-regional-rbd-deploy` namespace and can be viewed
    using:
 
    ```
-   kubectl get drpc -n busybox-sample
+   kubectl get drpc -n busybox-regional-rbd-deploy
    ```
 
    At this point the application is managed by *Ramen*.
@@ -219,9 +219,8 @@ kubectl delete -k subscription
 ## Disable DR for the OCM application
 
 > [!IMPORTANT]
-> The example shows how to disable DR for the `busybox` application in
-> the `busybox-sample` namespace. Use the relevant `dr*` directory and
-> namespace to enable DR for the other applications.
+> The example uses the `k8s/busybox-regional-rbd-deploy` variant.
+> To use other applications replace the path and namespace.
 
 1. Ensure Placement is pointing to the cluster where the workload is
    currently placed to avoid data loss if OCM moves the application to
@@ -234,7 +233,7 @@ kubectl delete -k subscription
 1. Delete the drpc resource for the OCM application on the hub:
 
    ```
-   kubectl delete -k dr
+   kubectl delete -k k8s/busybox-regional-rbd-deploy/dr
    ```
 
    This deletes the DRPlacementControl resource for the busybox
@@ -243,7 +242,7 @@ kubectl delete -k subscription
 1. Change the Placement to be reconciled by OCM
 
    ```
-   kubectl annotate placement busybox-placement -n busybox-sample \
+   kubectl annotate placement busybox-placement -n busybox-regional-rbd-deploy \
        cluster.open-cluster-management.io/experimental-scheduling-disable-
    ```
 

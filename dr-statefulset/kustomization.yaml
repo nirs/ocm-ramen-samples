@@ -1,6 +1,0 @@
----
-resources:
-  - ../dr
-namespace: busybox-sample-statefulset
-commonLabels:
-  app: busybox-sample-statefulset

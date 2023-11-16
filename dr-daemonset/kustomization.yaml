@@ -1,6 +1,0 @@
----
-resources:
-  - ../dr
-namespace: busybox-sample-daemonset
-commonLabels:
-  app: busybox-sample-daemonset
