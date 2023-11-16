@@ -98,20 +98,20 @@ need to change the storage class name to run on your environment.
 
 Applications:
 
-- **busybox** - deployment using RBD storage
-  - application: `busybox`
+- **busybox/deployment** - deployment using RBD storage
+  - application: `busybox/deployment`
   - subscription: `subscription`
   - dr: `dr`
-  - namespace: `busybox-sample`
+  - namespace: `busybox-sample-deployment`
 
-- **busybox-statefulset** - statefulset using RBD storage
-  - application: `busybox-statefulset`
+- **busybox/statefulset** - statefulset using RBD storage
+  - application: `busybox/statefulset`
   - subscription: `subscription-statefulset`
   - dr: `dr-statefulset`
   - namespace: `busybox-sample-statefulset`
 
-- **busybox-daemonset** - daemonset using RBD storage
-  - application: `busybox-daemonset`
+- **busybox/daemonset** - daemonset using RBD storage
+  - application: `busybox/daemonset`
   - subscription: `subscription-daemeonset`
   - dr: `dr-dameonset`
   - namespace: `busybox-sample-daemonset`
