@@ -60,14 +60,28 @@ OpenShift and Kubernetes clusters.
 
 Applications:
 
-- **busybox-odr** - Regional DR using RBD storage
-  - path: `busybox-odr`
+- **odr/busybox-regional-rbd-deploy**
+  - path: `odr/busybox-regioanl-rbd-deploy/app`
+  - subscription: `odr/busybox-regioanl-rbd-deploy/sub`
+  - dr: `odr/busybox-regioanl-rbd-deploy/dr`
+  - name: `busybox-regioanl-rbd-deploy`
+  - namespace: `busybox-regioanl-rbd-deploy`
 
-- **busybox-odr-metro** - Metro DR using RBD storage
-  - path: `busybox-odr-metro`
+- **odr/busybox-metro-rbd-deploy**
+  - path: `odr/busybox-metro-rbd-deploy/app`
+  - subscription: `odr/busybox-metro-rbd-deploy/sub`
+  - dr: `odr/busybox-metro-rbd-deploy/dr`
+  - name: `busybox-metro-rbd-deploy`
+  - namespace: `busybox-metro-rbd-deploy`
 
-- **busybox-odr-cephfs** - Regional DR using CephFS storage
-  - path: `busybox-odr-cephfs`
+- **odr/busybox-regional-cephfs-deploy**
+  - path: `odr/busybox-regional-cephfs-deploy/app`
+  - subscription: `odr/busybox-regional-cephfs-deploy/sub`
+  - dr: `odr/busybox-regional-cephfs-deploy/dr`
+  - name: `busybox-regional-cephfs-deploy`
+  - namespace: `busybox-regional-cephfs-deploy`
+
+#### Using the OpenShift Console
 
 On OpenShift the applications can be deployed using the OpenShift
 Console. When creating the application, specify:
@@ -86,6 +100,11 @@ To disable DR for the application you need to update the application
 Placement delete the DRPlacementControl resource manually. See
 [Disable DR for the OCM application](#disable-dr-for-the-ocm-application)
 for more info.
+
+#### Using the command line
+
+You can deploy, enable DR, disable DR and undeploy using the provided
+`sub` and `dr` kustomization in each application directory.
 
 ### Samples for Kubernetes
 
