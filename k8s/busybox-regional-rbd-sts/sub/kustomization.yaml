@@ -14,3 +14,6 @@ patches:
       - op: replace
         path: /metadata/annotations/apps.open-cluster-management.io~1github-path
         value: k8s/busybox-regional-rbd-sts/app
+      - op: replace
+        path: /spec/channel
+        value: busybox-regional-rbd-sts/ocm-ramen-samples

@@ -7,7 +7,7 @@ metadata:
     apps.open-cluster-management.io/github-path: busybox/deployment
   name: busybox-sub
 spec:
-  channel: ramen-samples/ramen-gitops
+  channel: busybox-sample/ocm-ramen-samples
   placement:
     placementRef:
       kind: Placement

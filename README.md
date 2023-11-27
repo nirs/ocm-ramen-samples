@@ -38,19 +38,6 @@ OCM Stateful application samples, including Ramen resources.
    kubectl get drcluster,drpolicy
    ```
 
-1. Setup the common OCM channel resources on the hub:
-
-   ```
-   kubectl apply -k channel
-   ```
-
-   This creates a Channel resource in the `ramen-samples` namespace and
-   can be viewed using:
-
-   ```
-   kubectl get channel ramen-gitops -n ramen-samples
-   ```
-
 ## The sample applications
 
 This repository provides sample applications that can be deployed on
@@ -150,12 +137,13 @@ Applications:
    kubectl apply -k k8s/busybox-regional-rbd-deploy/sub
    ```
 
-   This creates the required Subscription, Placement, and
+   This creates the required Channel, Subscription, Placement, and
    ManagedClusterSetBinding resources for the busybox application in the
    `busybox-regional-rbd-deploy` namespace and can be viewed using:
 
    ```
-   kubectl get subscription,placement -n busybox-regional-rbd-deploy
+   kubectl get channel,subscription,placement,managedclusterbinding \
+       -n busybox-regional-rbd-deploy
    ```
 
 1. Inspect subscribed resources from the channel created in the same
