@@ -2,6 +2,6 @@
 apiVersion: cluster.open-cluster-management.io/v1beta2
 kind: ManagedClusterSetBinding
 metadata:
-  name: default
+  name: dr
 spec:
-  clusterSet: default
+  clusterSet: dr
