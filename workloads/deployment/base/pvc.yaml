@@ -3,6 +3,8 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: busybox-pvc
+  labels:
+    replicated-by: ramen
 spec:
   accessModes:
     - ReadWriteOnce

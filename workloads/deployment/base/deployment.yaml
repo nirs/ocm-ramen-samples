@@ -3,15 +3,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: busybox
+  labels:
+    protected-by: ramen
 spec:
   replicas: 1
   selector:
     matchLabels:
-      appname: busybox
+      app: busybox
   template:
     metadata:
       labels:
-        appname: busybox
+        app: busybox
     spec:
       containers:
         - name: logger
