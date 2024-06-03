@@ -79,7 +79,7 @@ When failing over or relocating an *OCM managed application* to another
 cluster, *OCM* delete the application from the cluster and deploy it on
 the other cluster.
 
-### OCM discovered applications*
+### OCM discovered applications
 
 Deployed and undeployed by a user on a cluster using declarative or
 imperative means. An example is deploying one of the workloads in this
@@ -164,7 +164,7 @@ kubectl delete -k subscription/deployment-k8s-regional-rbd
    hub, for example:
 
    ```
-   kubectl apply -k dr/deployment-k8s-regional-rbd
+   kubectl apply -k dr/managed/deployment-k8s-regional-rbd
    ```
 
    This creates a DRPlacementControl resource for the busybox deployment
@@ -189,7 +189,7 @@ kubectl delete -k subscription/deployment-k8s-regional-rbd
 1. Delete the drpc resource for the OCM application on the hub:
 
    ```
-   kubectl delete -k dr/deployment-k8s-regional-rbd
+   kubectl delete -k dr/managed/deployment-k8s-regional-rbd
    ```
 
    This deletes the DRPlacementControl resource for the busybox
