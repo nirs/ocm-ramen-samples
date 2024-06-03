@@ -1,0 +1,8 @@
+---
+namespace: ramen-ops
+namePrefix: deployment-rbd-
+commonLabels:
+  app: deployment-rbd
+resources:
+  - drpc.yaml
+  - placement.yaml
