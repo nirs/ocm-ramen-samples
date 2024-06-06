@@ -38,6 +38,21 @@ OCM Stateful application samples, including Ramen resources.
    kubectl get drcluster,drpolicy
    ```
 
+1. Prepare the `ramen-ops` namespace
+
+   The `ramen-ops` namespace is used for DR resources of OCM discovered
+   applications. Before we can use it we need to prepare it by running:
+
+   ```
+   kubectl apply -f dr/discovered/ramen-ops/binding.yaml --context hub
+   ```
+
+   This creates a ManagedClusterSetBinding resources that can be viewed using:
+
+   ```
+   kubectl get manageclustersetbinding -n ramen-ops --context hub
+   ```
+
 1. Setup the common OCM channel resources on the hub:
 
    ```
@@ -241,24 +256,7 @@ NAME                                STATUS   VOLUME                             
 persistentvolumeclaim/busybox-pvc   Bound    pvc-c45a3892-167b-4dbc-a250-09c5f288c766   1Gi        RWO            rook-ceph-block   <unset>                 24s
 ```
 
-## Enabling DR for OCM discovered application
-
-Unlike OCM managed applications, the DR resources for all applications
-are in the `ramen-ops` namespace.
-
-To prepare the `ramen-ops` namespaces apply the managed clusterset
-binding resource. This should be done once before enabling DR for
-discovered applications.
-
-```
-kubectl apply -f dr/discovered/ramen-ops/binding.yaml --context hub
-```
-
-Example output:
-
-```
-managedclustersetbinding.cluster.open-cluster-management.io/default created
-```
+## Enabling DR for RBD based OCM discovered application
 
 To enable DR for the application, apply the DR resources to the hub
 cluster:
@@ -267,34 +265,42 @@ cluster:
 kubectl apply -k dr/discovered/deployment-rbd --context hub
 ```
 
-Example output:
+To watch the application DR status run:
 
 ```
-placement.cluster.open-cluster-management.io/deployment-rbd-placement created
-drplacementcontrol.ramendr.openshift.io/deployment-rbd-drpc created
-```
-
-*Ramen* creates a `VolumeReplicationGroup` resource in the `ramen-ops`
-namespace in cluster `dr1`:
-
-```
-kubectl get vrg -l app=deployment-rbd -n ramen-ops --context dr1
+kubectl get drpc -l app=deployment-rbd -n ramen-ops --context hub
 ```
 
 Example output:
 
 ```
-$ kubectl get vrg deployment-rbd-drpc -n ramen-ops --context dr1
+NAME                  AGE    PREFERREDCLUSTER   FAILOVERCLUSTER   DESIREDSTATE   CURRENTSTATE
+deployment-rbd-drpc   103m   dr1                                                 Deployed
+```
+
+### Inspecting the primary cluster
+
+In cluster `dr1` *Ramen* creates a primary `VolumeReplicationGroup` resource in
+the `ramen-ops` namespace, and a `VolumeReplication` resource for every
+protected PVC in the application namespace.
+
+To inspect the primary `VolumeReplicationGroup` run:
+
+```
+kubectl get vrg deployment-rbd-drpc -n ramen-ops --context dr1
+```
+
+Example output:
+
+```
 NAME                  DESIREDSTATE   CURRENTSTATE
 deployment-rbd-drpc   primary        Primary
 ```
 
-*Ramen* also creates a `VolumeReplication` resource, setting up
-replication for the application PVC from the primary cluster to the
-secondary cluster:
+To inspect the `VolumeReplication` resources in the application namespace run:
 
 ```
-kubectl get vr busybox-pvc -n deployment-rbd --context dr1
+kubectl get vr -n deployment-rbd --context dr1
 ```
 
 Example output:
@@ -302,6 +308,103 @@ Example output:
 ```
 NAME          AGE   VOLUMEREPLICATIONCLASS   PVCNAME       DESIREDSTATE   CURRENTSTATE
 busybox-pvc   10m   vrc-sample               busybox-pvc   primary        Primary
+```
+
+## Enabling DR for CephFS based OCM discovered application
+
+When using Kubernetes clusters we need to annotate the application namespace to
+allow volsync to replicate the PVCs:
+
+```
+kubectl annotate ns/deployment-cephfs volsync.backube/privileged-movers=true --context dr1
+kubectl annotate ns/deployment-cephfs volsync.backube/privileged-movers=true --context dr2
+```
+
+> [!NOTE]
+> When running on OpenShfit there is no need to annotate the namespace.
+
+To enable DR for the application, apply the DR resources to the hub
+cluster:
+
+```
+kubectl apply -k dr/discovered/deployment-cephfs --context hub
+```
+
+To watch the application DR status run:
+
+```
+kubectl get drpc -l app=deployment-cephfs -n ramen-ops --context hub
+```
+
+Example output:
+
+```
+NAME                     AGE   PREFERREDCLUSTER   FAILOVERCLUSTER   DESIREDSTATE   CURRENTSTATE
+deployment-cephfs-drpc   92m   dr1                                                 Deployed
+```
+
+### Inspecting the primary cluster
+
+In cluster `dr1`, *Ramen* creates a primary `VolumeReplicationGroup` resource
+in the `ramen-ops` namespace, and a `ReplicationSource` resource for every
+protected PVC in the application namespace.
+
+To inspect the primary `VolumeReplicationGroup` resource run:
+
+```
+kubectl get vrg deployment-cephfs-drpc -n ramen-ops --context dr1
+```
+
+Example output:
+
+```
+NAME                    DESIREDSTATE   CURRENTSTATE
+deployment-cephfs-drpc  primary        Primary
+```
+
+To inspect the `ReplicationSource` resources run:
+
+```
+kubectl get replicationsource -n deployment-cephfs --context dr1
+```
+
+Example output:
+
+```
+NAME          SOURCE        LAST SYNC              DURATION        NEXT SYNC
+busybox-pvc   busybox-pvc   2024-06-06T23:39:21Z   21.568146815s   2024-06-06T23:40:00Z
+```
+
+### Inspecting the secondary cluster
+
+In cluster `dr2`, *Ramen* creates a secondary`VolumeReplicationGroup` resource
+in the `ramen-ops` namespace, and a `ReplicationDestination` resources for
+every protected PVC in the application namespace.
+
+To inspect the secondary `VolumeReplicationGroup` resource run:
+
+```
+kubectl get vrg deployment-cephfs-drpc -n ramen-ops --context dr2
+```
+
+Example output:
+
+```
+NAME                     DESIREDSTATE   CURRENTSTATE
+deployment-cephfs-drpc   secondary      Secondary
+```
+
+To insepct the `ReplicationDestination` resources run:
+
+```
+kubectl get replicationdestination -n deployment-cephfs --context dr2
+```
+
+Example output:
+
+```
+NAME          LAST SYNC              DURATION        NEXT SYNC
+busybox-pvc   2024-06-06T22:45:25Z   52.882544492s
 ```
 
 ## Failing over an OCM discovered application
