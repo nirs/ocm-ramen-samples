@@ -1,0 +1,8 @@
+---
+namespace: ramen-ops
+namePrefix: deployment-cephfs-
+commonLabels:
+  app: deployment-cephfs
+resources:
+  - drpc.yaml
+  - placement.yaml
