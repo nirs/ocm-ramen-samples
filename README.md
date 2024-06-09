@@ -420,12 +420,6 @@ the minikube VM running cluster `dr1`:
 virsh -c qemu:///system suspend dr1
 ```
 
-Example output:
-
-```
-Domain 'dr1' suspended
-```
-
 At this point the application is not accessible. To recover from the
 disaster, we can fail over the application the secondary cluster.
 
@@ -439,12 +433,6 @@ kubectl patch drpc deployment-rbd-drpc \
     --type merge \
     --namespace ramen-ops \
     --context hub
-```
-
-Example output:
-
-```
-drplacementcontrol.ramendr.openshift.io/deployment-rbd-drpc patched
 ```
 
 The application will start on the failover cluster ("dr2"). Nothing will
@@ -499,25 +487,12 @@ cluster `dr1`:
 virsh -c qemu:///system resume dr1
 ```
 
-Example output:
-
-```
-Domain 'dr1' resumed
-```
-
 When the cluster becomes accessible again, you need to delete the
 application from the primary cluster since *Ramen* does not support
 deleting applications:
 
 ```
 kubectl delete -k workloads/deployment/k8s-regional-rbd -n deployment-rbd --context dr1
-```
-
-Example output:
-
-```
-persistentvolumeclaim "busybox-pvc" deleted
-deployment.apps "busybox" deleted
 ```
 
 To wait until the application data is replicated again to the other
@@ -529,12 +504,6 @@ kubectl wait drpc deployment-rbd-drpc \
     --namespace ramen-ops \
     --timeout 5m \
     --context hub
-```
-
-Example output:
-
-```
-drplacementcontrol.ramendr.openshift.io/deployment-rbd-drpc condition met
 ```
 
 To check the application DR status run:
@@ -572,12 +541,6 @@ kubectl patch drpc deployment-rbd-drpc \
     --context hub
 ```
 
-Example output:
-
-```
-drplacementcontrol.ramendr.openshift.io/deployment-rbd-drpc patched
-```
-
 *Ramen* will prepare for relocation, and proceed until the point the
 application should be deleted from the cluster. To watch the progress
 run:
@@ -602,13 +565,6 @@ delete the application from the secondary cluster:
 kubectl delete -k workloads/deployment/k8s-regional-rbd -n deployment-rbd --context dr2
 ```
 
-Example output:
-
-```
-persistentvolumeclaim "busybox-pvc" deleted
-deployment.apps "busybox" deleted
-```
-
 At this pint *Ramen* will proceed with starting the application on the
 primary cluster, and setting up replication to the secondary cluster.
 
@@ -622,12 +578,6 @@ kubectl wait drpc deployment-rbd-drpc \
     --context hub
 ```
 
-Example output:
-
-```
-drplacementcontrol.ramendr.openshift.io/deployment-rbd-drpc condition met
-```
-
 To wait until the application is replicating data again to the secondary
 cluster, wait for the `Protected` condition:
 
@@ -637,12 +587,6 @@ kubectl wait drpc deployment-rbd-drpc \
     --namespace ramen-ops \
     --timeout 5m \
     --context hub
-```
-
-Example output:
-
-```
-drplacementcontrol.ramendr.openshift.io/deployment-rbd-drpc condition met
 ```
 
 To check the application DR status run:
@@ -670,20 +614,13 @@ resources:
 kubectl delete -k dr/discovered/deployment-rbd --context hub
 ```
 
-Example output:
-
-```
-placement.cluster.open-cluster-management.io "deployment-rbd-placement" deleted
-drplacementcontrol.ramendr.openshift.io "deployment-rbd-drpc" deleted
-```
-
 This deletes the DR resources, disable replication and delete the
 replicated data on the secondary cluster.
 
 The application is still running on the primary cluster:
 
 ```
-$ kubectl get deploy,pod,pvc -n deployment-rbd --context dr1
+kubectl get deploy,pod,pvc -n deployment-rbd --context dr1
 ```
 
 Example output:
@@ -705,11 +642,4 @@ Delete the application workload from the cluster:
 
 ```
 kubectl delete -k workloads/deployment/k8s-regional-rbd -n deployment-rbd --context dr1
-```
-
-Example output:
-
-```
-persistentvolumeclaim "busybox-pvc" deleted
-deployment.apps "busybox" deleted
 ```
