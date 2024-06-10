@@ -38,21 +38,6 @@ OCM Stateful application samples, including Ramen resources.
    kubectl get drcluster,drpolicy
    ```
 
-1. Prepare the `ramen-ops` namespace
-
-   The `ramen-ops` namespace is used for DR resources of OCM discovered
-   applications. Before we can use it we need to prepare it by running:
-
-   ```
-   kubectl apply -f dr/discovered/ramen-ops/binding.yaml --context hub
-   ```
-
-   This creates a ManagedClusterSetBinding resources that can be viewed using:
-
-   ```
-   kubectl get manageclustersetbinding -n ramen-ops --context hub
-   ```
-
 1. Setup the common OCM channel resources on the hub:
 
    ```
