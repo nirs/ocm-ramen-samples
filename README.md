@@ -253,12 +253,13 @@ kubectl apply -k dr/discovered/deployment-rbd --context hub
 To watch the application DR status run:
 
 ```
-kubectl get drpc -l app=deployment-rbd -n ramen-ops --context hub
+kubectl get drpc -l app=deployment-rbd -n ramen-ops --context hub -o wide
 ```
 
 Example output:
 
 ```
+XXX replace with wide output
 NAME                  AGE    PREFERREDCLUSTER   FAILOVERCLUSTER   DESIREDSTATE   CURRENTSTATE
 deployment-rbd-drpc   103m   dr1                                                 Deployed
 ```
@@ -318,12 +319,13 @@ kubectl apply -k dr/discovered/deployment-cephfs --context hub
 To watch the application DR status run:
 
 ```
-kubectl get drpc -l app=deployment-cephfs -n ramen-ops --context hub
+kubectl get drpc -l app=deployment-cephfs -n ramen-ops --context hub -o wide
 ```
 
 Example output:
 
 ```
+XXX replace with wide output
 NAME                     AGE   PREFERREDCLUSTER   FAILOVERCLUSTER   DESIREDSTATE   CURRENTSTATE
 deployment-cephfs-drpc   92m   dr1                                                 Deployed
 ```
