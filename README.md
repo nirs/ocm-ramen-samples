@@ -2,6 +2,51 @@
 
 OCM Stateful application samples, including Ramen resources.
 
+## Sample applications
+
+In the workloads directory provides samples that can be deployed on
+Kubernetes and OpenShift.
+
+- deployment - busybox deployment
+- kubevirt
+  - vm-pvc - PVC based VM
+  - vm-dv - DataVolume based VM
+  - vm-dvt - DataVolumeTemplate based VM
+
+## Managed and discovered applications
+
+*Ramen* can protect *OCM managed applications* and *OCM discovered
+applications*.
+
+### OCM managed applications
+
+Deployed and undeployed by *OCM*, using either *Subsription* or
+*ApplciationSet* resources. *Ramen* take ownership of the application
+when enabling DR, and return ownership to OCM when disabling DR. When DR
+is enabled, *Ramen* control the placement of the application and backup
+and restore the application PVCs.
+
+When failing over or relocating an *OCM managed application* to another
+cluster, *OCM* delete the application from the cluster and deploy it on
+the other cluster.
+
+### OCM discovered applications
+
+Deployed and undeployed by a user on a cluster using declarative or
+imperative means. An example is deploying one of the workloads in this
+repository using kubectl. Another example is creating a virtual machine
+using KubeVirt console.
+
+*Ramen* take ownership of the application when enabling DR and return
+ownership of the application when disabling DR. When DR is enabled,
+*Ramen* control the application placement and backup and restore the
+application resources based provided *DRPlacementControl* resoruce.
+
+When failing over or relocating a discovered application to another
+cluster, *Ramen* deploy the application on the other cluster. However to
+complete the operation, the user must delete the application from the
+cluster since *Ramen* does not support deleting applications.
+
 ## Initial setup
 
 1. Clone this git repository to get started:
@@ -51,70 +96,9 @@ OCM Stateful application samples, including Ramen resources.
    kubectl get channel ramen-gitops -n ramen-samples
    ```
 
-## Sample applications
+## DR for RBD based OCM managed applications
 
-In the workloads directory provides samples that can be deployed on
-Kubernetes and OpenShift.
-
-- deployment - busybox deployment
-- kubevirt
-  - vm-pvc - PVC based VM
-  - vm-dv - DataVolume based VM
-  - vm-dvt - DataVolumeTemplate based VM
-
-## Managed and discovered applications
-
-*Ramen* can protect *OCM managed applications* and *OCM discovered
-applications*.
-
-### OCM managed applications
-
-Deployed and undeployed by *OCM*, using either *Subsription* or
-*ApplciationSet* resources. *Ramen* take ownership of the application
-when enabling DR, and return ownership to OCM when disabling DR. When DR
-is enabled, *Ramen* control the placement of the application and backup
-and restore the application PVCs.
-
-When failing over or relocating an *OCM managed application* to another
-cluster, *OCM* delete the application from the cluster and deploy it on
-the other cluster.
-
-### OCM discovered applications
-
-Deployed and undeployed by a user on a cluster using declarative or
-imperative means. An example is deploying one of the workloads in this
-repository using kubectl. Another example is creating a virtual machine
-using KubeVirt console.
-
-*Ramen* take ownership of the application when enabling DR and return
-ownership of the application when disabling DR. When DR is enabled,
-*Ramen* control the application placement and backup and restore the
-application resources based provided *DRPlacementControl* resoruce.
-
-When failing over or relocating a discovered application to another
-cluster, *Ramen* deploy the application on the other cluster. However to
-complete the operation, the user must delete the application from the
-cluster since *Ramen* does not support deleting applications.
-
-### Enabling DR for CephFS base discovered applications
-
-Support for CephFS based application is not complete yet, so you need to
-enable the feature in ramen config. Edit ramen-hub-operator-config in
-the hub cluster:
-
-```
-kubectl edit cm ramen-hub-operator-config -n ramen-system --context hub
-```
-
-And enable the `multiNamespaces.volsyncSupported` option:
-
-```
-multiNamespace:
-  FeatureEnabled: true
-  volsyncSupported: true
-```
-
-## Deploying an OCM managed application
+### Deploy the sample application
 
 In the example we use the busybox deployment for Kubernetes regional DR
 environment using RBD storage:
@@ -159,15 +143,6 @@ the examples.
    ```
    kubectl get pod,pvc -n deployment-rbd --context dr1
    ```
-
-## Undeploying an OCM managed application
-
-To undeploy an application delete the subscription overlay used to
-deploy the application:
-
-```
-kubectl delete -k subscription/deployment-k8s-regional-rbd
-```
 
 ## Enable DR for a deployed OCM managed application
 
@@ -222,15 +197,24 @@ kubectl delete -k subscription/deployment-k8s-regional-rbd
 
    At this point the application is managed again by *OCM*.
 
-## Deploy OCM discovered application
+### Undeploy an OCM managed application
+
+To undeploy an application delete the subscription overlay used to
+deploy the application:
+
+```
+kubectl delete -k subscription/deployment-k8s-regional-rbd
+```
+
+## DR for RBD based OCM discovered application
+
+### Deploy the sample application
 
 The sample application is configured to run on cluster `dr1`. To deploy
-it on cluster `dr1` and make it possible to fail over or relocate to
-cluster `dr2` we need to create the namespace on both clusters:
+it on cluster `dr1` we need to create a namespace:
 
 ```
 kubectl create ns deployment-rbd --context dr1
-kubectl create ns deployment-rbd --context dr2
 ```
 
 To deploy the application apply the deployment-rbd workload to the
@@ -240,7 +224,7 @@ To deploy the application apply the deployment-rbd workload to the
 kubectl apply -k workloads/deployment/k8s-regional-rbd -n deployment-rbd --context dr1
 ```
 
-To view the deployed application use:
+To inspect the deployed application use:
 
 ```
 kubectl get deploy,pod,pvc -n deployment-rbd --context dr1
@@ -259,7 +243,14 @@ NAME                                STATUS   VOLUME                             
 persistentvolumeclaim/busybox-pvc   Bound    pvc-c45a3892-167b-4dbc-a250-09c5f288c766   1Gi        RWO            rook-ceph-block   <unset>                 24s
 ```
 
-## Enabling DR for RBD based OCM discovered application
+### Enable DR for the sample application
+
+To make it possible to fail over or relocate to cluster `dr2` we need to
+create the namespace on cluster `dr2`:
+
+```
+kubectl create ns deployment-rbd --context dr2
+```
 
 To enable DR for the application, apply the DR resources to the hub
 cluster:
@@ -314,105 +305,7 @@ NAME          AGE   VOLUMEREPLICATIONCLASS   PVCNAME       DESIREDSTATE   CURREN
 busybox-pvc   10m   vrc-sample               busybox-pvc   primary        Primary
 ```
 
-## Enabling DR for CephFS based OCM discovered application
-
-When using Kubernetes clusters we need to annotate the application namespace to
-allow volsync to replicate the PVCs:
-
-```
-kubectl annotate ns/deployment-cephfs volsync.backube/privileged-movers=true --context dr1
-kubectl annotate ns/deployment-cephfs volsync.backube/privileged-movers=true --context dr2
-```
-
-> [!NOTE]
-> When running on OpenShfit there is no need to annotate the namespace.
-
-To enable DR for the application, apply the DR resources to the hub
-cluster:
-
-```
-kubectl apply -k dr/discovered/deployment-cephfs --context hub
-```
-
-To watch the application DR status run:
-
-```
-kubectl get drpc -l app=deployment-cephfs -n ramen-ops --context hub -o wide
-```
-
-Example output:
-
-```
-XXX replace with wide output
-NAME                     AGE   PREFERREDCLUSTER   FAILOVERCLUSTER   DESIREDSTATE   CURRENTSTATE
-deployment-cephfs-drpc   92m   dr1                                                 Deployed
-```
-
-### Inspecting the primary cluster
-
-In cluster `dr1`, *Ramen* creates a primary `VolumeReplicationGroup` resource
-in the `ramen-ops` namespace, and a `ReplicationSource` resource for every
-protected PVC in the application namespace.
-
-To inspect the primary `VolumeReplicationGroup` resource run:
-
-```
-kubectl get vrg deployment-cephfs-drpc -n ramen-ops --context dr1
-```
-
-Example output:
-
-```
-NAME                    DESIREDSTATE   CURRENTSTATE
-deployment-cephfs-drpc  primary        Primary
-```
-
-To inspect the `ReplicationSource` resources run:
-
-```
-kubectl get replicationsource -n deployment-cephfs --context dr1
-```
-
-Example output:
-
-```
-NAME          SOURCE        LAST SYNC              DURATION        NEXT SYNC
-busybox-pvc   busybox-pvc   2024-06-06T23:39:21Z   21.568146815s   2024-06-06T23:40:00Z
-```
-
-### Inspecting the secondary cluster
-
-In cluster `dr2`, *Ramen* creates a secondary`VolumeReplicationGroup` resource
-in the `ramen-ops` namespace, and a `ReplicationDestination` resources for
-every protected PVC in the application namespace.
-
-To inspect the secondary `VolumeReplicationGroup` resource run:
-
-```
-kubectl get vrg deployment-cephfs-drpc -n ramen-ops --context dr2
-```
-
-Example output:
-
-```
-NAME                     DESIREDSTATE   CURRENTSTATE
-deployment-cephfs-drpc   secondary      Secondary
-```
-
-To insepct the `ReplicationDestination` resources run:
-
-```
-kubectl get replicationdestination -n deployment-cephfs --context dr2
-```
-
-Example output:
-
-```
-NAME          LAST SYNC              DURATION        NEXT SYNC
-busybox-pvc   2024-06-06T22:45:25Z   52.882544492s
-```
-
-## Failing over an OCM discovered application
+### Failover the sample application
 
 In case of disaster you can force the application to run on the other
 cluster.  The application will start on the other cluster using the data
@@ -527,7 +420,7 @@ deployment-rbd-drpc   28m   dr1                dr2               Failover       
 The failover has completed, and the application data is replicated again
 to the primary cluster.
 
-## Relocate an OCM discovered application
+### Relocate the sample application
 
 To move the application back to the primary cluster after a disaster you
 can use the `Relocate` action. You will delete the application on the
@@ -610,7 +503,7 @@ deployment-rbd-drpc   103m   dr1                dr2               Relocate      
 The relocate has completed, and the application data is replicated again
 to the secondary cluster.
 
-## Disable DR for a DR enabled OCM discovered application
+### Disable DR for the sample application
 
 Since OCM is not managing the application, we can simply delete the DR
 resources:
@@ -641,10 +534,153 @@ NAME                                STATUS   VOLUME                             
 persistentvolumeclaim/busybox-pvc   Bound    pvc-c45a3892-167b-4dbc-a250-09c5f288c766   1Gi        RWO            rook-ceph-block   <unset>                 16m
 ```
 
-## Undeploy an OCM discovered application
+### Undeploy the sample application
 
 Delete the application workload from the cluster:
 
 ```
 kubectl delete -k workloads/deployment/k8s-regional-rbd -n deployment-rbd --context dr1
 ```
+
+## DR for CephFS based OCM discovered application
+
+### Enabling CephFS support for base discovered applications
+
+Support for CephFS based application is not complete yet. To test this
+feature so you need to enable it in ramen config. Edit
+ramen-hub-operator-config in the hub cluster:
+
+```
+kubectl edit cm ramen-hub-operator-config -n ramen-system --context hub
+```
+
+And enable the `multiNamespaces.volsyncSupported` option:
+
+```
+multiNamespace:
+  FeatureEnabled: true
+  volsyncSupported: true
+```
+
+### Deploy the sample application
+
+XXX
+
+### Enable DR for the sample application
+
+To make it possible to fail over or relocate to cluster `dr2` we need to
+create the namespace on cluster `dr2`:
+
+```
+kubectl create ns deployment-cephfs --context dr2
+```
+
+When using Kubernetes clusters we need to annotate the application namespace to
+allow volsync to replicate the PVCs:
+
+```
+kubectl annotate ns/deployment-cephfs volsync.backube/privileged-movers=true --context dr1
+kubectl annotate ns/deployment-cephfs volsync.backube/privileged-movers=true --context dr2
+```
+
+> [!NOTE]
+> When running on OpenShfit there is no need to annotate the namespace.
+
+To enable DR for the application, apply the DR resources to the hub
+cluster:
+
+```
+kubectl apply -k dr/discovered/deployment-cephfs --context hub
+```
+
+To watch the application DR status run:
+
+```
+kubectl get drpc -l app=deployment-cephfs -n ramen-ops --context hub -o wide
+```
+
+Example output:
+
+```
+XXX
+```
+
+### Inspecting the primary cluster
+
+In cluster `dr1`, *Ramen* creates a primary `VolumeReplicationGroup` resource
+in the `ramen-ops` namespace, and a `ReplicationSource` resource for every
+protected PVC in the application namespace.
+
+To inspect the primary `VolumeReplicationGroup` resource run:
+
+```
+kubectl get vrg deployment-cephfs-drpc -n ramen-ops --context dr1
+```
+
+Example output:
+
+```
+NAME                    DESIREDSTATE   CURRENTSTATE
+deployment-cephfs-drpc  primary        Primary
+```
+
+To inspect the `ReplicationSource` resources run:
+
+```
+kubectl get replicationsource -n deployment-cephfs --context dr1
+```
+
+Example output:
+
+```
+NAME          SOURCE        LAST SYNC              DURATION        NEXT SYNC
+busybox-pvc   busybox-pvc   2024-06-06T23:39:21Z   21.568146815s   2024-06-06T23:40:00Z
+```
+
+### Inspecting the secondary cluster
+
+In cluster `dr2`, *Ramen* creates a secondary`VolumeReplicationGroup` resource
+in the `ramen-ops` namespace, and a `ReplicationDestination` resources for
+every protected PVC in the application namespace.
+
+To inspect the secondary `VolumeReplicationGroup` resource run:
+
+```
+kubectl get vrg deployment-cephfs-drpc -n ramen-ops --context dr2
+```
+
+Example output:
+
+```
+NAME                     DESIREDSTATE   CURRENTSTATE
+deployment-cephfs-drpc   secondary      Secondary
+```
+
+To inspect the `ReplicationDestination` resources run:
+
+```
+kubectl get replicationdestination -n deployment-cephfs --context dr2
+```
+
+Example output:
+
+```
+NAME          LAST SYNC              DURATION        NEXT SYNC
+busybox-pvc   2024-06-06T22:45:25Z   52.882544492s
+```
+
+### Failover the sample application
+
+XXX
+
+### Relocate the sample application
+
+XXX
+
+### Disable DR for the sample application
+
+XXX
+
+### Undeploy the sample application
+
+XXX
