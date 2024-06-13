@@ -96,6 +96,24 @@ cluster, *Ramen* deploy the application on the other cluster. However to
 complete the operation, the user must delete the application from the
 cluster since *Ramen* does not support deleting applications.
 
+### Enabling DR for CephFS base discovered applications
+
+Support for CephFS based application is not complete yet, so you need to
+enable the feature in ramen config. Edit ramen-hub-operator-config in
+the hub cluster:
+
+```
+kubectl edit cm ramen-hub-operator-config -n ramen-system --context hub
+```
+
+And enable the `multiNamespaces.volsyncSupported` option:
+
+```
+multiNamespace:
+  FeatureEnabled: true
+  volsyncSupported: true
+```
+
 ## Deploying an OCM managed application
 
 In the example we use the busybox deployment for Kubernetes regional DR
