@@ -7,3 +7,9 @@ resources:
 labels:
   - pairs:
       appname: fedora
+secretGenerator:
+  - name: fedora
+    files:
+      - test_rsa.pub
+generatorOptions:
+  disableNameSuffixHash: true

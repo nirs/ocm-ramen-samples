@@ -1,5 +1,7 @@
-VER := 1
+VER := 2
 IMG := quay.io/nirsof/dr-demo:fedora-$(VER)
+
+base_image := https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
 
 container: fedora.qcow2
 	podman build -t $(IMG) .
@@ -7,33 +9,26 @@ container: fedora.qcow2
 push:
 	podman push $(IMG)
 
-fedora.qcow2:
-	genisoimage -o extra.iso -R -J -V EXTRA extra
-	LIBGUESTFS_BACKEND=direct virt-builder fedora-40 \
-		--output fedora.raw \
-		--hostname=fedora \
-		--ssh-inject=root \
-		--root-password=password:root \
-		--selinux-relabel \
-		--install=qemu-guest-agent \
-		--attach extra.iso \
-		--run extra.sh \
-		--firstboot firstboot.sh
-	qemu-img convert -p -f raw -O qcow2 -c -W fedora.raw fedora.qcow2
-	rm -f fedora.raw
+fedora.qcow2: customized.qcow2
+	qemu-img convert -p -f qcow2 -O qcow2 -c -W $^ $@
 
-# Create libvirt vm for testing the image. Using an overlay so we don't modify
-# the actual image.
-vm:
-	qemu-img create -f qcow2 -b fedora.qcow2 -F qcow2 overlay.qcow2
+customized.qcow2: base.qcow2
+	qemu-img create -f qcow2 -b base.qcow2 -F qcow2 tmp.qcow2
+	genisoimage -o extra.iso -R -J -V EXTRA extra
 	virt-install \
-		--connect qemu:///system \
 		--import \
 		--name fedora \
 		--ram 2048 \
 		--cpus 2 \
-		--disk path=overlay.qcow2,format=qcow2 \
-		--os-variant fedora40
+		--disk path=tmp.qcow2,format=qcow2 \
+		--disk path=extra.iso,device=cdrom \
+		--os-variant fedora40 \
+		--cloud-init user-data=user-data.yaml,disable=off
+	virsh undefine fedora
+	mv tmp.qcow2 customized.qcow2
+
+base.qcow2:
+	curl -L -o $@ $(base_image)
 
 clean:
-	rm -f *.iso *.raw *.qcow2
+	rm -f *.iso *.qcow2

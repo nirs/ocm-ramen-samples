@@ -6,4 +6,4 @@ metadata:
 spec:
   source:
     registry:
-      url: "docker://quay.io/nirsof/dr-demo:fedora-1"
+      url: "docker://quay.io/nirsof/dr-demo:fedora-2"

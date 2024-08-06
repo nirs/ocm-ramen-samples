@@ -25,6 +25,9 @@ spec:
             - name: fedora
               disk:
                 bus: virtio
+            - name: cloud-init
+              disk:
+                bus: virtio
           inputs:
             # Required for correct mouse tracking in VNC.
             - bus: usb
@@ -39,7 +42,21 @@ spec:
       networks:
         - name: default
           pod: {}
+      accessCredentials:
+        - sshPublicKey:
+            source:
+              secret:
+                secretName: fedora
+            propagationMethod:
+              noCloud: {}
       volumes:
         - name: fedora
           persistentVolumeClaim:
             claimName: fedora
+        - name: cloud-init
+          cloudInitNoCloud:
+            userData: |-
+              #cloud-config
+              password: fedora
+              chpasswd:
+                expire: false

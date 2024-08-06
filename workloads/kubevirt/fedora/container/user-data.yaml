@@ -1,0 +1,20 @@
+#cloud-config
+password: fedora
+chpasswd:
+  expire: false
+
+write_files:
+  - path: /tmp/setup.sh
+    owner: 'root:root'
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      sudo mkdir /tmp/extra
+      sudo mount LABEL=EXTRA /tmp/extra
+      sudo dnf -y install -y /tmp/extra/visitor*.rpm
+      sudo systemctl enable visitor
+      sudo cloud-init clean
+      sudo poweroff
+
+runcmd:
+  - sudo /tmp/setup.sh
