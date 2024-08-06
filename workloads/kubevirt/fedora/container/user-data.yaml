@@ -11,7 +11,7 @@ write_files:
       #!/bin/bash
       sudo mkdir /tmp/extra
       sudo mount LABEL=EXTRA /tmp/extra
-      sudo dnf -y install -y /tmp/extra/visitor*.rpm
+      sudo dnf -y install -y /tmp/extra/visitor.rpm
       sudo systemctl enable visitor
       sudo cloud-init clean
       sudo poweroff
