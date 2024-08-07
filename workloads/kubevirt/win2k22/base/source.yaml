@@ -7,4 +7,4 @@ spec:
   source:
     registry:
       # Replace with URL of a Windows container disk.
-      url: "docker://REGISTRY/REPO/IMAGE:TAG"
+      url: "docker://quay.io/nirsof/dr-demo:win2k22-large-2"
