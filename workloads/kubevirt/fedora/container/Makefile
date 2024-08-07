@@ -1,8 +1,8 @@
-VER := 3
+VER := 5
 IMG := quay.io/nirsof/dr-demo:fedora-$(VER)
 
 base_image_url := https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
-visitor_url := https://github.com/nirs/visitor/releases/download/v0.4.0/visitor-0.4.0-1.fc39.x86_64.rpm
+visitor_url := https://github.com/nirs/visitor/releases/download/v0.6.0/visitor-0.6.0-1.fc39.x86_64.rpm
 
 container: fedora.qcow2
 	podman build -t $(IMG) .
