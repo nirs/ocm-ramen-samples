@@ -28,6 +28,10 @@ spec:
             - name: cloud-init
               disk:
                 bus: virtio
+            - name: config
+              disk:
+                bus: virtio
+              serial: config-disk
           inputs:
             # Required for correct mouse tracking in VNC.
             - bus: usb
@@ -60,3 +64,10 @@ spec:
               password: fedora
               chpasswd:
                 expire: false
+              bootcmd:
+                - "sudo mkdir -p /mnt/config"
+                - "sudo mount /dev/disk/by-id/virtio-config-disk /mnt/config"
+        - name: config
+          configMap:
+            name: fedora
+            optional: true
