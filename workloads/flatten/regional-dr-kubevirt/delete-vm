@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+echo "deleting vm"
+kubectl delete -k vm --ignore-not-found --context dr1

@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+echo "protecting vm"
+kubectl apply -k dr --context hub

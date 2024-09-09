@@ -1,0 +1,14 @@
+---
+resources:
+  - vm.yaml
+  - dv.yaml
+namespace: flatten-vm
+labels:
+  - pairs:
+      appname: vm
+secretGenerator:
+  - name: my-public-key
+    files:
+      - test_rsa.pub
+generatorOptions:
+  disableNameSuffixHash: true

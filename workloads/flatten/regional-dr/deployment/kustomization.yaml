@@ -1,0 +1,9 @@
+# A deployment that can be protected by ramen.
+---
+resources:
+  - restored-pvc.yaml
+  - deployment.yaml
+namespace: flatten
+labels:
+  - pairs:
+      appname: busybox

@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+echo "creating namespace flatten-vm"
+kubectl apply -f vm/namespace.yaml --context dr1
+kubectl apply -f vm/namespace.yaml --context dr2
+
+echo "cretating vm"
+kubectl apply -k vm --context dr1

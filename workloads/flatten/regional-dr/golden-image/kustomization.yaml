@@ -1,0 +1,6 @@
+# A volume snapshot used a golden image for create new workloads.
+---
+resources:
+  - base-pvc.yaml
+  - snapshot.yaml
+namespace: flatten

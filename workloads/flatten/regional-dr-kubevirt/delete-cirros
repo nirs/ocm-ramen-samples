@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "deleting cirros golden image"
+kubectl delete -k cirros --ignore-not-found --context dr1

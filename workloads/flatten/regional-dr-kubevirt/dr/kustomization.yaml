@@ -1,0 +1,9 @@
+---
+namespace: ramen-ops
+namePrefix: vm-
+labels:
+  - pairs:
+      app: vm
+resources:
+  - drpc.yaml
+  - placement.yaml

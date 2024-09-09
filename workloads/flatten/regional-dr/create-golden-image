@@ -1,0 +1,16 @@
+#!/bin/sh -e
+
+echo "creating namespace flatten"
+kubectl apply -f deployment/namespace.yaml --context dr1
+
+echo "deploying golden image"
+kubectl apply -k golden-image --context dr1
+
+echo "waiting until pvc is bound"
+kubectl wait pvc base-pvc --for=jsonpath={.status.phase}=Bound -n flatten --timeout 120s --context dr1
+
+echo "waiting until snapshot is ready to use"
+kubectl wait volumesnapshot snapshot --for=jsonpath='{.status.readyToUse}=true' -n flatten --timeout 120s --context dr1
+
+echo "deleting pvc"
+kubectl delete pvc base-pvc -n flatten --ignore-not-found --context dr1

@@ -1,0 +1,9 @@
+---
+namespace: ramen-ops
+namePrefix: flatten-
+labels:
+  - pairs:
+      app: flatten
+resources:
+  - drpc.yaml
+  - placement.yaml

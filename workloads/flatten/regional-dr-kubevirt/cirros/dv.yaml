@@ -1,0 +1,16 @@
+---
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: cirros
+spec:
+  storage:
+    accessModes:
+      - ReadWriteMany
+    storageClassName: rook-ceph-block
+    resources:
+      requests:
+        storage: 128Mi
+  source:
+    registry:
+      url: "docker://quay.io/nirsof/cirros:0.6.2-1"

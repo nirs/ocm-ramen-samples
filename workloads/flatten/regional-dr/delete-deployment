@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+echo "deleting deployment"
+kubectl delete -k deployment --ignore-not-found --context dr1

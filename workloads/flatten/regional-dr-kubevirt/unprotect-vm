@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+echo "unprotecting vm"
+kubectl delete -k dr --ignore-not-found --context hub

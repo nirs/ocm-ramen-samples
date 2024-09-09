@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "deleting golden-image"
+kubectl delete -k golden-image --ignore-not-found --context dr1

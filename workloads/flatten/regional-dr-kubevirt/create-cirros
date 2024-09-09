@@ -1,0 +1,15 @@
+#!/bin/sh -e
+
+NAMESPACE=os-images
+
+echo "deploying cirros golden image"
+kubectl apply -k cirros --context dr1
+
+echo "waiting until pvc is bound"
+kubectl wait pvc cirros --for=jsonpath={.status.phase}=Bound -n $NAMESPACE --timeout 120s --context dr1
+
+echo "waiting until snapshot is ready to use"
+kubectl wait volumesnapshot cirros --for=jsonpath='{.status.readyToUse}=true' -n $NAMESPACE --timeout 120s --context dr1
+
+echo "deleting pvc"
+kubectl delete pvc cirros -n $NAMESPACE --ignore-not-found --context dr1

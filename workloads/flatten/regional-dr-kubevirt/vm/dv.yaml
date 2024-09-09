@@ -1,0 +1,17 @@
+---
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: root-disk
+spec:
+  storage:
+    accessModes:
+      - ReadWriteMany
+    storageClassName: rook-ceph-block
+    resources:
+      requests:
+        storage: 128Mi
+  source:
+    snapshot:
+      namespace: os-images
+      name: cirros

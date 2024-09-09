@@ -1,0 +1,11 @@
+#!/bin/sh -e
+
+echo "creating namespace flatten"
+kubectl apply -f deployment/namespace.yaml --context dr1
+kubectl apply -f deployment/namespace.yaml --context dr2
+
+echo "cretating deployment"
+kubectl apply -k deployment --context dr1
+
+echo "waiting until deployment is rolled out"
+kubectl rollout status deploy busybox -n flatten --timeout 120s --context dr1
